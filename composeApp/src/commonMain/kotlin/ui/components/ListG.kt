@@ -31,7 +31,7 @@ fun ListG(
     tap: (url: String) -> Unit = {},
     logTap: (url: String) -> Unit = {}
 ) {
-    val pl = if (p.id.toInt() % 2 == 0) Color.Transparent else Color(0xE1CDA61A)
+    val pl = if (p.id.toInt() % 2 == 0) Color.Transparent else Color(0xF6F6F610)
     ListItem(
         modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(

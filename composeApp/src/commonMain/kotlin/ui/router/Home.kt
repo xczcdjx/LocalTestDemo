@@ -37,6 +37,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -211,15 +212,31 @@ fun Second() {
                 ListG(tempArr[it], false, true)
             }
         }
+        var addUrl by remember {
+            mutableStateOf("")
+        }
         if (addShow) {
             Dialog(onDismissRequest = {
                 addShow = false
             }) {
                 Surface(
-                    modifier = Modifier.size(400.dp).padding(15.dp),
+                    modifier = Modifier.width(400.dp).height(200.dp).padding(15.dp),
                     shape = RoundedCornerShape(10.dp)
                 ) {
-                    Text("content")
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("添加网址")
+                        Spacer(modifier = Modifier.padding(20.dp))
+                        TextField(value = addUrl, onValueChange = {
+                            addUrl = it
+                        },
+                            placeholder = {
+                                Text("请填写正确的url")
+                            })
+                    }
                 }
             }
         }
