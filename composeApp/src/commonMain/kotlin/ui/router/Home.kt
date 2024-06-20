@@ -3,6 +3,7 @@ package ui.router
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,16 +21,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Grid3x3
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.ModalDrawerSheet
@@ -38,7 +43,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,7 +55,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
@@ -66,6 +76,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import service.outerCon
 import ui.components.ListG
 import ui.types.PageCls
+import kotlin.random.Random
 
 val tempArr: List<PageCls> = listOf(
     PageCls("1", "游戏前台", "https://gw100.mvkbnb.com", Res.drawable.g1),
@@ -173,18 +184,43 @@ fun First() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Second() {
+    val navigator = LocalNavigator.currentOrThrow
     var addShow by remember { mutableStateOf(false) }
+    var delShow by remember { mutableStateOf(false) }
+    var selfModal by remember {
+        mutableStateOf<List<PageCls>>(listOf())
+    }
+    var delPage by remember { mutableStateOf<PageCls?>(null) }
+    var reflectSelf by remember {
+        mutableStateOf(List<Boolean>(selfModal.size) { false })
+    }
+    LaunchedEffect(selfModal.size) {
+//        reflectSelf =List<Boolean>(selfModal.size) { false }
+        reflectSelf += false
+        println(selfModal)
+    }
+    //
+    var titState by remember { mutableStateOf("") }
+    val baseurl = "http://192.168.124."
+    var ipState by remember { mutableStateOf("") }
+    var portState by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             TextButton(onClick = { addShow = true }) {
+                titState = ""
+                ipState = ""
+                portState = ""
+                errorMessage = ""
                 Text("新增", color = Color.Green)
             }
             TextButton(onClick = {
-
+                delShow = true
             }) {
                 Text("删除", color = Color.Red)
             }
@@ -208,37 +244,167 @@ fun Second() {
         )
         Spacer(modifier = Modifier.height(15.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(tempArr.size) {
-                ListG(tempArr[it], false, true)
+            items(selfModal.size) { it ->
+                ListG(selfModal[it], reflectSelf[it], true, tap = {url->
+                    navigator.push(Detail(url))
+                }, checkTap = { id ->
+                    val i = selfModal.indexOfFirst { it.id == id }
+                    delPage = selfModal[i]
+                    reflectSelf = reflectSelf.mapIndexed { index, b ->
+                        var t = b
+                        if (i == index) t = !b
+                        else t = false
+                        return@mapIndexed t
+                    }
+                }) {
+                    url->
+                    outerCon.openUrl(url)
+                }
             }
         }
-        var addUrl by remember {
-            mutableStateOf("")
-        }
+//        Bott
         if (addShow) {
             Dialog(onDismissRequest = {
                 addShow = false
             }) {
                 Surface(
-                    modifier = Modifier.width(400.dp).height(200.dp).padding(15.dp),
+                    modifier = Modifier.width(500.dp).height(400.dp).padding(15.dp),
                     shape = RoundedCornerShape(10.dp)
                 ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
+                        verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text("添加网址")
-                        Spacer(modifier = Modifier.padding(20.dp))
-                        TextField(value = addUrl, onValueChange = {
-                            addUrl = it
-                        },
-                            placeholder = {
-                                Text("请填写正确的url")
-                            })
+                        Column {
+                            TextField(
+                                value = titState,
+                                onValueChange = { titState = it },
+                                label = { Text("标题") },
+                                modifier = Modifier.padding(horizontal = 4.dp).border(
+                                    BorderStroke(1.dp, Color.Gray),
+                                    RoundedCornerShape(4.dp)
+                                ),
+                                colors = TextFieldDefaults.textFieldColors(
+                                    containerColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
+                                ),
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Done
+                                )
+                            )
+                            Spacer(modifier = Modifier.padding(vertical = 5.dp))
+                            TextField(
+                                value = ipState,
+                                onValueChange = {
+                                    if (it.all { char -> char.isDigit() && it.length <= 2 }) ipState =
+                                        it
+                                },
+                                label = { Text("端口地址") },
+                                modifier = Modifier.padding(horizontal = 4.dp).border(
+                                    BorderStroke(1.dp, Color.Gray),
+                                    RoundedCornerShape(4.dp)
+                                ),
+                                colors = TextFieldDefaults.textFieldColors(
+                                    containerColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
+                                ),
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Done
+                                )
+                            )
+                            Spacer(modifier = Modifier.padding(vertical = 2.dp))
+                            TextField(
+                                value = portState,
+                                onValueChange = {
+                                    if (it.all { char -> char.isDigit() && it.length <= 5 }) portState =
+                                        it
+                                },
+                                label = { Text("ip地址") },
+                                modifier = Modifier.padding(horizontal = 4.dp).border(
+                                    BorderStroke(1.dp, Color.Gray),
+                                    RoundedCornerShape(4.dp)
+                                ),
+                                colors = TextFieldDefaults.textFieldColors(
+                                    containerColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
+                                ),
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Done
+                                )
+                            )
+                            Spacer(modifier = Modifier.padding(vertical = 3.dp))
+                            Text(
+                                buildAnnotatedString {
+                                    append(baseurl)
+                                    withStyle(SpanStyle(fontSize = 15.sp, color = Color.Red)) {
+                                        append(ipState)
+                                    }
+                                    append(":")
+                                    withStyle(SpanStyle(fontSize = 15.sp, color = Color.Blue)) {
+                                        append(portState)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                            if (errorMessage.isNotEmpty()) {
+                                Text(
+                                    text = errorMessage,
+                                    color = Color.Red,
+                                    modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 15.sp
+                                )
+                            }
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            TextButton(onClick = {
+                                if (titState.isBlank() || ipState.isBlank() || portState.isBlank()) {
+                                    errorMessage = "数据不能为空"
+                                } else {
+                                    selfModal += PageCls(
+                                        Random.nextInt().toString(),
+                                        titState,
+                                        baseurl + ipState + ":${portState}",
+                                        Res.drawable.i2
+                                    )
+                                    addShow = false
+                                }
+                            }) {
+                                Text("确认")
+                            }
+                        }
                     }
                 }
             }
+        }
+        if (delShow) {
+            AlertDialog(onDismissRequest = {
+                delShow = false
+            }, title = {
+                Text(text = ("删除" + delPage?.let { it.tit }) ?: "")
+            }, confirmButton = {
+                TextButton(onClick = {
+                    selfModal = selfModal.filter {
+                        it.id !== delPage?.id
+                    }
+                }) {
+                    Text("确认")
+                }
+            })
         }
     }
 }

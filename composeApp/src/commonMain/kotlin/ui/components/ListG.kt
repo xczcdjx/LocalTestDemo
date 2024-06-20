@@ -29,9 +29,10 @@ fun ListG(
     f: Boolean,
     sf: Boolean,
     tap: (url: String) -> Unit = {},
-    logTap: (url: String) -> Unit = {}
+    checkTap:(id: String) -> Unit = {},
+    logTap: (url: String) -> Unit = {},
 ) {
-    val pl = if (p.id.toInt() % 2 == 0) Color.Transparent else Color(0xF6F6F610)
+    val pl = if (p.id.toInt() % 2 == 0) Color(0xd6e4faff) else Color(0x8EB6F8FF)
     ListItem(
         modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
@@ -59,7 +60,7 @@ fun ListG(
             Text(text = p.url, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }, trailingContent = {
             if (sf) Checkbox(checked = f, onCheckedChange = {
-
+                checkTap(p.id)
             })
         })
 }
