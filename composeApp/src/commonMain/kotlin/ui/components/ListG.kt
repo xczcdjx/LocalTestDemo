@@ -1,6 +1,7 @@
 package ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
@@ -12,17 +13,36 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import localtest.composeapp.generated.resources.Res
 import localtest.composeapp.generated.resources.i2
 import org.jetbrains.compose.resources.painterResource
+import service.outerCon
+import ui.router.Detail
 import ui.types.PageCls
 
 @Composable
-fun ListG(p: PageCls, f: Boolean,sf:Boolean) {
-    val pl = if (p.id.toInt() % 2 == 0) Color.Transparent else Color.LightGray
+fun ListG(
+    p: PageCls,
+    f: Boolean,
+    sf: Boolean,
+    tap: (url: String) -> Unit = {},
+    logTap: (url: String) -> Unit = {}
+) {
+    val pl = if (p.id.toInt() % 2 == 0) Color.Transparent else Color(0xE1CDA61A)
     ListItem(
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = {
+                    tap(p.url)
+                },
+                onLongPress = {
+                    logTap(p.url)
+                }
+            )
+        },
         colors = ListItemDefaults.colors(pl),
         leadingContent = {
             Image(
@@ -38,7 +58,7 @@ fun ListG(p: PageCls, f: Boolean,sf:Boolean) {
         supportingContent = {
             Text(text = p.url, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }, trailingContent = {
-           if (sf) Checkbox(checked = f, onCheckedChange = {
+            if (sf) Checkbox(checked = f, onCheckedChange = {
 
             })
         })

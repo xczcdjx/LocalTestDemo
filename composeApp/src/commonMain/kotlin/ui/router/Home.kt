@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -31,6 +32,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,6 +55,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import localtest.composeapp.generated.resources.Res
@@ -155,7 +160,11 @@ fun First() {
             }
             else LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(tempArr.size) {
-                    ListG(tempArr[it], false, false)
+                    ListG(tempArr[it], false, false, tap = { url ->
+                        navigator.push(Detail(url))
+                    }) { url ->
+                        outerCon.openUrl(url)
+                    }
                 }
             }
         }
@@ -165,10 +174,21 @@ fun First() {
 
 @Composable
 fun Second() {
+    var addShow by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {
-        Spacer(modifier = Modifier.height(50.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = { addShow = true }) {
+                Text("新增", color = Color.Green)
+            }
+            TextButton(onClick = {
+
+            }) {
+                Text("删除", color = Color.Red)
+            }
+        }
+        Spacer(modifier = Modifier.height(30.dp))
         Text(
             "自定义网址",
             fontSize = 30.sp,
@@ -189,6 +209,18 @@ fun Second() {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(tempArr.size) {
                 ListG(tempArr[it], false, true)
+            }
+        }
+        if (addShow) {
+            Dialog(onDismissRequest = {
+                addShow = false
+            }) {
+                Surface(
+                    modifier = Modifier.size(400.dp).padding(15.dp),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text("content")
+                }
             }
         }
     }
