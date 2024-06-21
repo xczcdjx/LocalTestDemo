@@ -47,6 +47,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -76,6 +77,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import service.outerCon
 import ui.components.ListG
 import ui.types.PageCls
+import ui.types.PageClsM
 import kotlin.random.Random
 
 val tempArr: List<PageCls> = listOf(
@@ -114,7 +116,7 @@ fun First() {
         )
         Text(
             "轻触使用webview,长按使用内置游览器",
-            fontSize = 10.sp,
+            fontSize = 15.sp,
             modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 .padding(vertical = 15.dp),
             lineHeight = TextUnit(1f, TextUnitType.Em),
@@ -187,20 +189,23 @@ fun First() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Second() {
+    val tempArr: List<PageCls> = listOf(
+        PageCls("1", "local", "http://192.168.124.5:5173", Res.drawable.g1),
+        PageCls("2", "Aia (测试)", "https://dorabettest.mvkbnb.com/", Res.drawable.a1),
+    )
     val navigator = LocalNavigator.currentOrThrow
     var addShow by remember { mutableStateOf(false) }
     var delShow by remember { mutableStateOf(false) }
     var selfModal by remember {
-        mutableStateOf<List<PageCls>>(listOf())
+        mutableStateOf<List<PageCls>>(tempArr)
     }
-    var delPage by remember { mutableStateOf<PageCls?>(null) }
     var reflectSelf by remember {
-        mutableStateOf(List<Boolean>(selfModal.size) { false })
+        mutableStateOf<List<PageClsM>>(listOf())
     }
+//    val list= mutableStateListOf<PageClsM>(PageClsM("","","",null,false))
     LaunchedEffect(selfModal.size) {
-//        reflectSelf =List<Boolean>(selfModal.size) { false }
-        reflectSelf += false
-        println(selfModal)
+        println("self$selfModal")
+        reflectSelf = selfModal.map { PageClsM(it.id, it.tit, it.url, it.imgUrl, false) }
     }
     //
     var titState by remember { mutableStateOf("") }
@@ -227,7 +232,7 @@ fun Second() {
         }
         Spacer(modifier = Modifier.height(30.dp))
         Text(
-            "自定义网址",
+            "自定义网址（仅局域）",
             fontSize = 30.sp,
             modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
             lineHeight = TextUnit(1f, TextUnitType.Em),
@@ -235,7 +240,7 @@ fun Second() {
         )
         Text(
             "轻触使用webview,长按使用内置游览器",
-            fontSize = 10.sp,
+            fontSize = 15.sp,
             modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 .padding(vertical = 15.dp),
             lineHeight = TextUnit(1f, TextUnitType.Em),
@@ -244,20 +249,20 @@ fun Second() {
         )
         Spacer(modifier = Modifier.height(15.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(selfModal.size) { it ->
-                ListG(selfModal[it], reflectSelf[it], true, tap = {url->
+            items(reflectSelf.size) { oit ->
+                ListG(selfModal[oit], reflectSelf[oit].check, true, tap = { url ->
                     navigator.push(Detail(url))
                 }, checkTap = { id ->
                     val i = selfModal.indexOfFirst { it.id == id }
-                    delPage = selfModal[i]
                     reflectSelf = reflectSelf.mapIndexed { index, b ->
-                        var t = b
-                        if (i == index) t = !b
-                        else t = false
-                        return@mapIndexed t
+                        val t = b.copy()
+                        /* t.check = index == i
+                         t*/
+                        if (i == index) t.check = !t.check
+                        else t.check = false
+                        t
                     }
-                }) {
-                    url->
+                }) { url ->
                     outerCon.openUrl(url)
                 }
             }
@@ -379,7 +384,7 @@ fun Second() {
                                         Random.nextInt().toString(),
                                         titState,
                                         baseurl + ipState + ":${portState}",
-                                        Res.drawable.i2
+                                        Res.drawable.i2,
                                     )
                                     addShow = false
                                 }
@@ -392,15 +397,18 @@ fun Second() {
             }
         }
         if (delShow) {
+            val delPage = reflectSelf.find { it.check }
             AlertDialog(onDismissRequest = {
                 delShow = false
             }, title = {
-                Text(text = ("删除" + delPage?.let { it.tit }) ?: "")
+                Text(text = if (delPage == null) "没有选择删除项" else "删除" + delPage.tit)
             }, confirmButton = {
                 TextButton(onClick = {
-                    selfModal = selfModal.filter {
-                        it.id !== delPage?.id
+                    if (delPage != null) {
+                        selfModal = selfModal.filter { it.id != delPage.id }
+                        reflectSelf = reflectSelf.filter { it.id != delPage.id }
                     }
+                    delShow = false
                 }) {
                     Text("确认")
                 }

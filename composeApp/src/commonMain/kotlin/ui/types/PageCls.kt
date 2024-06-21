@@ -6,3 +6,8 @@ data class PageCls(
     val id: String, val tit: String,
     val url: String, val imgUrl: DrawableResource?
 )
+data class PageClsM(
+    val id: String, val tit: String,
+    val url: String, val imgUrl: DrawableResource?,
+    var check:Boolean
+)
