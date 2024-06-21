@@ -27,7 +27,7 @@ object Index : Screen {
         val navigator = LocalNavigator.currentOrThrow
 //        navigator.push(Detail)
         val page =
-            rememberPagerState(initialPage = 1, pageCount = { 2 })
+            rememberPagerState(initialPage = 0, pageCount = { 2 })
         HorizontalPager(
             state = page,
             pageSpacing = 16.dp,

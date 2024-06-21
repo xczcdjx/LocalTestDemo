@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    kotlin("plugin.serialization") version "2.0.0"
 }
 
 kotlin {
@@ -45,6 +46,9 @@ kotlin {
             implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
             implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
             implementation(compose.materialIconsExtended)
+            implementation("com.russhwolf:multiplatform-settings:1.1.1")
+            implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
         }
     }
 }

@@ -75,9 +75,14 @@ import localtest.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import service.outerCon
+import service.storage
+import storage.SettingsManager
 import ui.components.ListG
 import ui.types.PageCls
 import ui.types.PageClsM
+import ui.types.PageClsSet
+import ui.utils.toPageCls
+import ui.utils.toPageClsSet
 import kotlin.random.Random
 
 val tempArr: List<PageCls> = listOf(
@@ -189,15 +194,13 @@ fun First() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Second() {
-    val tempArr: List<PageCls> = listOf(
-        PageCls("1", "local", "http://192.168.124.5:5173", Res.drawable.g1),
-        PageCls("2", "Aia (测试)", "https://dorabettest.mvkbnb.com/", Res.drawable.a1),
-    )
+    val setting = SettingsManager(storage.getStorage())
+    val list = setting.getPageList()
     val navigator = LocalNavigator.currentOrThrow
     var addShow by remember { mutableStateOf(false) }
     var delShow by remember { mutableStateOf(false) }
     var selfModal by remember {
-        mutableStateOf<List<PageCls>>(tempArr)
+        mutableStateOf<List<PageCls>>(list.map { it.toPageCls() })
     }
     var reflectSelf by remember {
         mutableStateOf<List<PageClsM>>(listOf())
@@ -206,6 +209,7 @@ fun Second() {
     LaunchedEffect(selfModal.size) {
         println("self$selfModal")
         reflectSelf = selfModal.map { PageClsM(it.id, it.tit, it.url, it.imgUrl, false) }
+        setting.savePageList(selfModal.map { it.toPageClsSet() })
     }
     //
     var titState by remember { mutableStateOf("") }
