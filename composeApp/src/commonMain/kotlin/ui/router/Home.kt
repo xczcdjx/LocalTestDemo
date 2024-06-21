@@ -179,7 +179,7 @@ fun First() {
             }
             else LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(tempArr.size) {
-                    ListG(tempArr[it], false, false, tap = { url ->
+                    ListG(tempArr[it], false, false, it, tap = { url ->
                         navigator.push(Detail(url))
                     }) { url ->
                         outerCon.openUrl(url)
@@ -252,24 +252,34 @@ fun Second() {
             color = Color.Gray
         )
         Spacer(modifier = Modifier.height(15.dp))
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(reflectSelf.size) { oit ->
-                ListG(selfModal[oit], reflectSelf[oit].check, true, tap = { url ->
-                    navigator.push(Detail(url))
-                }, checkTap = { id ->
-                    val i = selfModal.indexOfFirst { it.id == id }
-                    reflectSelf = reflectSelf.mapIndexed { index, b ->
-                        val t = b.copy()
-                        /* t.check = index == i
-                         t*/
-                        if (i == index) t.check = !t.check
-                        else t.check = false
-                        t
+        if (selfModal.isNotEmpty()) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(reflectSelf.size) { oit ->
+                    ListG(selfModal[oit], reflectSelf[oit].check, true, oit, tap = { url ->
+                        navigator.push(Detail(url))
+                    }, checkTap = { id ->
+                        val i = selfModal.indexOfFirst { it.id == id }
+                        reflectSelf = reflectSelf.mapIndexed { index, b ->
+                            val t = b.copy()
+                            /* t.check = index == i
+                             t*/
+                            if (i == index) t.check = !t.check
+                            else t.check = false
+                            t
+                        }
+                    }) { url ->
+                        outerCon.openUrl(url)
                     }
-                }) { url ->
-                    outerCon.openUrl(url)
                 }
             }
+        } else {
+            Spacer(modifier = Modifier.padding(vertical = 20.dp))
+            Text(
+                "没有数据,添加一个试试",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = Color.Magenta
+            )
         }
 //        Bott
         if (addShow) {

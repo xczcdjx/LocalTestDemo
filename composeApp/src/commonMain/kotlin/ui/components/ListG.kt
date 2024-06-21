@@ -28,11 +28,12 @@ fun ListG(
     p: PageCls,
     f: Boolean,
     sf: Boolean,
+    index: Int,
     tap: (url: String) -> Unit = {},
-    checkTap:(id: String) -> Unit = {},
+    checkTap: (id: String) -> Unit = {},
     logTap: (url: String) -> Unit = {},
 ) {
-    val pl = if (p.id.toInt() % 2 == 0) Color(0xd6e4faff) else Color(0x8EB6F8FF)
+    val pl = if (index % 2 == 0) Color(0xd6e4faff) else Color(0x8EB6F8FF)
     ListItem(
         modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
