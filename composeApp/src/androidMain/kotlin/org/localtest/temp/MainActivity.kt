@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import service.ExternalBrowserOpen
 import service.Storage
+import service.Version
+import service.appVersion
 import service.outerCon
 import service.storage
 
@@ -16,6 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         outerCon = ExternalBrowserOpen(this)
         storage = Storage(this)
+        appVersion = Version(this)
         setContent {
             App()
         }

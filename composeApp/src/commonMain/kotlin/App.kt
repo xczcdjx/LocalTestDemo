@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import service.appVersion
 import service.outerCon
 import ui.router.Index
 
@@ -13,6 +14,8 @@ import ui.router.Index
 @Preview
 fun App() {
     MaterialTheme {
+        val version = appVersion.getVersion()
+        println("Version ${version}")
         Navigator(Index) {
             SlideTransition(it)
         }
