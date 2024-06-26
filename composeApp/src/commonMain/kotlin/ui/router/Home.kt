@@ -295,7 +295,12 @@ fun Second() {
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("添加网址")
+                        Text(buildAnnotatedString {
+                            append("添加网址")
+                            withStyle(SpanStyle(fontSize = 10.sp, color = Color.Red)) {
+                                append(" (上限10)")
+                            }
+                        })
                         Column {
                             TextField(
                                 value = titState,
@@ -394,6 +399,11 @@ fun Second() {
                                 if (titState.isBlank() || ipState.isBlank() || portState.isBlank()) {
                                     errorMessage = "数据不能为空"
                                 } else {
+                                    if (selfModal.size>9){
+                                        selfModal=selfModal.filterIndexed { index, pageCls ->
+                                            return@filterIndexed index!=0
+                                        }
+                                    }
                                     selfModal += PageCls(
                                         Random.nextInt().toString(),
                                         titState,

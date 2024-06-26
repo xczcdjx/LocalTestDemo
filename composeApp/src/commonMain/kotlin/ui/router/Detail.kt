@@ -73,10 +73,11 @@ class Detail(val str: String) : Screen {
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            CircularProgressIndicator(
+                            /*CircularProgressIndicator(
                                 progress = loadingState.progress,
                                 color = Color.Red, strokeWidth = 3.dp
-                            )
+                            )*/
+                            CircularProgressIndicator(color = Color.Red, strokeWidth = 3.dp)
                         }
                     }
 
