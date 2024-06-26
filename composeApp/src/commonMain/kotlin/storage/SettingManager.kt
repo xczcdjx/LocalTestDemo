@@ -18,7 +18,9 @@ class SettingsManager(private val settings: Settings) {
         set(value) {
             settings.putInt("someInt", value)
         }
-
+    var version: String
+        get() = settings.getString("version","")
+        set(v)=settings.putString("version",v)
     fun clear() {
         settings.clear()
     }
